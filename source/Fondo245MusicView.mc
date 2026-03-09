@@ -68,35 +68,32 @@ class Fondo245MusicView extends WatchUi.WatchFace {
         var textOffset = 22;      // Espacio entre icono y texto
         
         var fila1Y = height * 0.72; 
-        var fila2Y = height * 0.84; 
+        var fila2Y = height * 0.80; 
         
         // El secreto de la alineación:
         var yIconAdj = 2;   // Baja el icono un poco
-        var yTextAdj = -2;  // Sube el texto un poco
+        var yTextAdj = 0;  // Sube el texto un poco
         
         var actInfo = ActivityMonitor.getInfo();
         var sensInfo = Activity.getActivityInfo();
+
+        var colorContraste = Graphics.COLOR_BLACK;
 
         // FILA 1: PASOS Y BATERÍA
         // Pasos
         var pasos = actInfo.steps != null ? actInfo.steps : 0;
         dc.drawBitmap(col1X, fila1Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconSteps));
-        dc.setColor(0x00FFFF, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(colorContraste, Graphics.COLOR_TRANSPARENT);
         dc.drawText(col1X + textOffset, fila1Y + yTextAdj, Graphics.FONT_XTINY, pasos.toString(), Graphics.TEXT_JUSTIFY_LEFT);
 
         // Batería
         var bat = Sys.getSystemStats().battery;
         dc.drawBitmap(col2X, fila1Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconBattery));
-        dc.setColor(bat > 20 ? Graphics.COLOR_GREEN : Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(bat > 20 ? colorContraste : Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
         dc.drawText(col2X + textOffset, fila1Y + yTextAdj, Graphics.FONT_XTINY, bat.format("%d") + "%", Graphics.TEXT_JUSTIFY_LEFT);
 
-        // FILA 2: TIEMPO Y PULSO
-        // Tiempo
-        var tiempoAct = (sensInfo != null && sensInfo.elapsedTime != null) ? sensInfo.elapsedTime / 1000 : 0;
-        var tiempoTexto = Lang.format("$1$:$2$", [(tiempoAct / 3600).format("%02d"), ((tiempoAct % 3600) / 60).format("%02d")]);
-        dc.drawBitmap(col1X, fila2Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconTime));
-        dc.setColor(0xFF8800, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(col1X + textOffset, fila2Y + yTextAdj, Graphics.FONT_XTINY, tiempoTexto, Graphics.TEXT_JUSTIFY_LEFT);
+        // FILA 2: PULSO
+        
 
         // Pulso
         var pulso = (sensInfo != null && sensInfo.currentHeartRate != null) ? sensInfo.currentHeartRate : "--";
@@ -105,9 +102,11 @@ class Fondo245MusicView extends WatchUi.WatchFace {
         dc.drawText(col2X + textOffset, fila2Y + yTextAdj, Graphics.FONT_XTINY, pulso.toString(), Graphics.TEXT_JUSTIFY_LEFT);
 
         // --- 4. BLUETOOTH ---
-        if (Sys.getDeviceSettings().phoneConnected) {
-            dc.setColor(0x00AAFF, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(centerX, height - 20, Graphics.FONT_XTINY, "B", Graphics.TEXT_JUSTIFY_CENTER);
+        var settings = Sys.getDeviceSettings();
+        if (settings.phoneConnected) {
+            var iconBT = WatchUi.loadResource(Rez.Drawables.IconBluetooth);
+            // Lo centramos en la parte más baja de la pantalla
+            dc.drawBitmap(col1X, fila2Y + yIconAdj, iconBT);
         }
     }
 
