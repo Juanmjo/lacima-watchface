@@ -1,0 +1,40 @@
+# Compilados y builds
+bin/
+build/
+*.prg
+*.iq
+
+# Archivos temporales de Eclipse / VSCode / IntelliJ
+*.log
+*.tmp
+
+# Configuración local de VS Code
+.vscode/
+.settings/
+
+# Carpetas del SDK o generadas por el IDE
+.gradle/
+.idea/
+.classpath
+.project
+
+# Cache y temporales del sistema
+Thumbs.db
+.DS_Store
+
+# Archivos de empaquetado / distribución
+*.zip
+*.tar.gz
+*.jar
+
+# Generados por el compilador Connect IQ
+*.mctmp
+*.mcgen
+
+# Claves privadas (no subir jamás)
+*.pem
+*.der
+private_key*
+developer_key*
+cert/
+keys/
