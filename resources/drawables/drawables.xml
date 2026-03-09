@@ -1,5 +1,9 @@
 <drawables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
     <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none" />
     <bitmap id="LogoLaCima" filename="LogoLaCima.jpg" />
-
+    <bitmap id="IconSteps" filename="ic_steps.png" />
+    <bitmap id="IconBattery" filename="ic_battery.png" />
+    <bitmap id="IconTime" filename="ic_time.png" />
+    <bitmap id="IconHeart" filename="ic_heart.png" />
+    <bitmap id="IconBluetooth" filename="ic_bluetooth.png" />
 </drawables>
