@@ -1,8 +1,12 @@
 import Toybox.Graphics;
 import Toybox.Lang;
-import Toybox.System;
+using Toybox.System as Sys;
 import Toybox.WatchUi;
 using Toybox.Time.Gregorian;
+
+using Toybox.ActivityMonitor; 
+using Toybox.Activity;
+using Toybox.Lang;
 
 class Fondo245MusicView extends WatchUi.WatchFace {
 
@@ -23,25 +27,89 @@ class Fondo245MusicView extends WatchUi.WatchFace {
 
     // Update the view
     function onUpdate(dc) {
-    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-    dc.clear();
+        // 1. Limpiar pantalla completa
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.clear();
 
-    
-    var imagen = WatchUi.loadResource(Rez.Drawables.LogoLaCima);
-    
-    
-    var x = (dc.getWidth() / 2) - (imagen.getWidth() / 2);
-    var y = (dc.getHeight() / 2) - (imagen.getHeight() / 2);
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        var centerX = width / 2;
+        var centerY = height / 2;
 
-    
-    dc.drawBitmap(x, y, imagen);
-    
-    
-    dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-    var info = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
-    var horaTexto = Lang.format("$1$:$2$", [info.hour.format("%02d"), info.min.format("%02d")]);
-    dc.drawText(dc.getWidth() / 2, dc.getHeight() - 60, Graphics.FONT_MEDIUM, horaTexto, Graphics.TEXT_JUSTIFY_CENTER);
-}
+        // --- 1. FONDO (Primero para que no tape nada) ---
+        try {
+            var imagen = WatchUi.loadResource(Rez.Drawables.LogoLaCima); 
+            var xLogo = centerX - (imagen.getWidth() / 2);
+            var yLogo = centerY - (imagen.getHeight() / 2);
+            dc.drawBitmap(xLogo, yLogo, imagen);
+        } catch (ex) {}
+
+        // --- 2. HORA Y FECHA ---
+        var now = Time.now();
+        var info = Gregorian.info(now, Time.FORMAT_MEDIUM);
+        
+        var horaTexto = Lang.format("$1$:$2$", [info.hour.format("%02d"), info.min.format("%02d")]);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(centerX, 15, Graphics.FONT_LARGE, horaTexto, Graphics.TEXT_JUSTIFY_CENTER);
+
+        var diasES = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+        var mesesES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        var diaSemanaNum = Gregorian.info(now, Time.FORMAT_SHORT).day_of_week - 1;
+        var mesNum = Gregorian.info(now, Time.FORMAT_SHORT).month - 1;
+        
+        var fechaTexto = Lang.format("$1$, $2$ $3$ $4$", [diasES[diaSemanaNum], info.day.format("%d"), mesesES[mesNum], info.year.format("%04d")]);
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(centerX, height * 0.22, Graphics.FONT_XTINY, fechaTexto, Graphics.TEXT_JUSTIFY_CENTER);
+
+        // --- 3. DATOS EXTRA (AJUSTE DE PRECISIÓN) ---
+        // Para que se vea centrado, el bloque debe estar más equilibrado
+        var col1X = width * 0.28; // Movido un poco a la derecha desde 0.25 para centrar el bloque
+        var col2X = width * 0.55; 
+        var textOffset = 22;      // Espacio entre icono y texto
+        
+        var fila1Y = height * 0.72; 
+        var fila2Y = height * 0.84; 
+        
+        // El secreto de la alineación:
+        var yIconAdj = 2;   // Baja el icono un poco
+        var yTextAdj = -2;  // Sube el texto un poco
+        
+        var actInfo = ActivityMonitor.getInfo();
+        var sensInfo = Activity.getActivityInfo();
+
+        // FILA 1: PASOS Y BATERÍA
+        // Pasos
+        var pasos = actInfo.steps != null ? actInfo.steps : 0;
+        dc.drawBitmap(col1X, fila1Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconSteps));
+        dc.setColor(0x00FFFF, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(col1X + textOffset, fila1Y + yTextAdj, Graphics.FONT_XTINY, pasos.toString(), Graphics.TEXT_JUSTIFY_LEFT);
+
+        // Batería
+        var bat = Sys.getSystemStats().battery;
+        dc.drawBitmap(col2X, fila1Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconBattery));
+        dc.setColor(bat > 20 ? Graphics.COLOR_GREEN : Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(col2X + textOffset, fila1Y + yTextAdj, Graphics.FONT_XTINY, bat.format("%d") + "%", Graphics.TEXT_JUSTIFY_LEFT);
+
+        // FILA 2: TIEMPO Y PULSO
+        // Tiempo
+        var tiempoAct = (sensInfo != null && sensInfo.elapsedTime != null) ? sensInfo.elapsedTime / 1000 : 0;
+        var tiempoTexto = Lang.format("$1$:$2$", [(tiempoAct / 3600).format("%02d"), ((tiempoAct % 3600) / 60).format("%02d")]);
+        dc.drawBitmap(col1X, fila2Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconTime));
+        dc.setColor(0xFF8800, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(col1X + textOffset, fila2Y + yTextAdj, Graphics.FONT_XTINY, tiempoTexto, Graphics.TEXT_JUSTIFY_LEFT);
+
+        // Pulso
+        var pulso = (sensInfo != null && sensInfo.currentHeartRate != null) ? sensInfo.currentHeartRate : "--";
+        dc.drawBitmap(col2X, fila2Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconHeart));
+        dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(col2X + textOffset, fila2Y + yTextAdj, Graphics.FONT_XTINY, pulso.toString(), Graphics.TEXT_JUSTIFY_LEFT);
+
+        // --- 4. BLUETOOTH ---
+        if (Sys.getDeviceSettings().phoneConnected) {
+            dc.setColor(0x00AAFF, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(centerX, height - 20, Graphics.FONT_XTINY, "B", Graphics.TEXT_JUSTIFY_CENTER);
+        }
+    }
 
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
