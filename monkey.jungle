@@ -1,1 +1,4 @@
 project.manifest = manifest.xml
+
+# Esto le dice al compilador que busque en 'resources' 
+# y automáticamente en cualquier carpeta que empiece con 'resources-'
