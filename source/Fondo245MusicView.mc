@@ -86,15 +86,46 @@ class Fondo245MusicView extends WatchUi.WatchFace {
         dc.setColor(colorContraste, Graphics.COLOR_TRANSPARENT);
         dc.drawText(col1X + textOffset, fila1Y + yTextAdj, Graphics.FONT_XTINY, pasos.toString(), Graphics.TEXT_JUSTIFY_LEFT);
 
-        // Batería
+        // --- DIBUJAR BATERÍA DINÁMICA ---
         var bat = Sys.getSystemStats().battery;
-        dc.drawBitmap(col2X, fila1Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconBattery));
-        dc.setColor(bat > 20 ? colorContraste : Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(col2X + textOffset, fila1Y + yTextAdj, Graphics.FONT_XTINY, bat.format("%d") + "%", Graphics.TEXT_JUSTIFY_LEFT);
+    
+        // Posicionamiento (Usando tus variables de columna y fila)
+        var bX = col2X;
+        var bY = fila1Y + 6; // Ajuste para que el icono baje al nivel del texto
+        var bW = 22;             // Ancho total del cuerpo de la batería
+        var bH = 11;             // Alto total de la batería
+
+        // Dibujar el cuerpo (el borde gris de la batería)
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.drawRectangle(bX, bY, bW, bH);
+    
+        // Dibujar el "bornesito" o punta de la batería
+        dc.fillRectangle(bX + bW, bY + 3, 2, 5); 
+
+        // Calcular el color y el ancho del relleno
+        // El relleno ocupa el ancho interno (bW - 4 píxeles de bordes)
+        var fillW = (bat * (bW - 4)) / 100;
+        
+        if (bat <= 20) {
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT); // Alerta roja
+        } else if (bat <= 40) {
+            dc.setColor(0xFFFF00, Graphics.COLOR_TRANSPARENT); // Amarillo precaución
+        } else {
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT); // Saludable
+        }
+
+        // Dibujar el relleno real (solo si hay batería > 0)
+        if (fillW > 0) {
+            dc.fillRectangle(bX + 2, bY + 2, fillW, bH - 4);
+        }
+
+        // Dibujar el texto del porcentaje al lado
+        // Usamos el colorContraste (blanco) que definimos antes
+        dc.setColor(colorContraste, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(bX + bW + 8, fila1Y + yTextAdj, Graphics.FONT_XTINY, bat.format("%d") + "%", Graphics.TEXT_JUSTIFY_LEFT);
 
         // FILA 2: PULSO
         
-
         // Pulso
         var pulso = (sensInfo != null && sensInfo.currentHeartRate != null) ? sensInfo.currentHeartRate : "--";
         dc.drawBitmap(col2X, fila2Y + yIconAdj, WatchUi.loadResource(Rez.Drawables.IconHeart));
