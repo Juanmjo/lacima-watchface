@@ -63,7 +63,7 @@ class Fondo245MusicView extends WatchUi.WatchFace {
 
         // --- 3. DATOS EXTRA (AJUSTE DE PRECISIÓN) ---
         // Para que se vea centrado, el bloque debe estar más equilibrado
-        var col1X = width * 0.28; // Movido un poco a la derecha desde 0.25 para centrar el bloque
+        var col1X = width * 0.20; // Movido un poco a la derecha desde 0.25 para centrar el bloque
         var col2X = width * 0.55; 
         var textOffset = 22;      // Espacio entre icono y texto
         
@@ -111,7 +111,7 @@ class Fondo245MusicView extends WatchUi.WatchFace {
         } else if (bat <= 40) {
             dc.setColor(0xFFFF00, Graphics.COLOR_TRANSPARENT); // Amarillo precaución
         } else {
-            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT); // Saludable
+            dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT); // Saludable
         }
 
         // Dibujar el relleno real (solo si hay batería > 0)
@@ -136,8 +136,13 @@ class Fondo245MusicView extends WatchUi.WatchFace {
         var settings = Sys.getDeviceSettings();
         if (settings.phoneConnected) {
             var iconBT = WatchUi.loadResource(Rez.Drawables.IconBluetooth);
-            // Lo centramos en la parte más baja de la pantalla
-            dc.drawBitmap(col1X, fila2Y + yIconAdj, iconBT);
+            
+            // Cambiamos col1X por un valor mayor o centerX para moverlo a la derecha
+            // Si quieres que esté justo debajo de los pasos, prueba con col1X + 5
+            // Si quieres que esté más al centro, usa centerX - (iconBT.getWidth() / 2)
+            var xBT = col1X + 20; 
+            
+            dc.drawBitmap(xBT, fila2Y + yIconAdj, iconBT);
         }
     }
 
