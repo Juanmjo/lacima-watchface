@@ -1,3 +1,3 @@
 <drawables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
-    <bitmap id="LogoLaCima" filename="Logo_280x280.jpg" />
+    <bitmap id="LogoLaCima" filename="Logo_300x300.jpg" />
 </drawables>
